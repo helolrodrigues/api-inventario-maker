@@ -9,6 +9,7 @@ class ComponenteSchema(BaseModel):
     nome: str = Field(..., min_length=2, description="Nome do componente maker")
     quantidade: int = Field(..., ge=0, description="Quantidade em estoque (deve ser maior ou igual a zero)")
     categoria: str = Field(..., description="Categoria do item (ex: Atuadores, Microcontroladores)")
+    estado_conservacao: str = Field (..., description="Estado de conservação")
 
 # 3. Nosso "Banco de Dados" temporário em memória
 estoque_laboratorio = [
@@ -45,10 +46,10 @@ def adicionar_componente(novo_componente: ComponenteSchema):
     return {"mensagem": "Componente adicionado com sucesso!", "componente": componente_dict}
 
 # CRUD - UPDATE (Atualizar quantidade ou dados)
-@app.put("/componentes/{componente_id}")
-def atualizar_componente(componente_id: int, dados_atualizados: ComponenteSchema):
+@app.put("/componentes/{id}")
+def atualizar_componente(id: int, dados_atualizados: ComponenteSchema):
     for item in estoque_laboratorio:
-        if item["id"] == componente_id:
+        if item["id"] == id:
             item["nome"] = dados_atualizados.nome
             item["quantidade"] = dados_atualizados.quantidade
             item["categoria"] = dados_atualizados.categoria
@@ -57,11 +58,11 @@ def atualizar_componente(componente_id: int, dados_atualizados: ComponenteSchema
     raise HTTPException(status_code=404, detail="Componente não encontrado no laboratório.")
 
 # CRUD - DELETE (Remover item do inventário)
-@app.delete("/componentes/{componente_id}")
-def remover_componente(componente_id: int):
+@app.delete("/componentes/{id}")
+def remover_componente(id: int):
     for index, item in enumerate(estoque_laboratorio):
-        if item["id"] == componente_id:
+        if item["id"] == id:
             estoque_laboratorio.pop(index)
-            return {"mensagem": f"Componente com ID {componente_id} foi removido do estoque."}
+            return {"mensagem": f"Componente com ID {id} foi removido do estoque."}
             
     raise HTTPException(status_code=404, detail="Componente não encontrado no laboratório.")
